@@ -13,36 +13,33 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.runtime.getValue
 
 @Composable
-fun Permintaan(navController: NavHostController) {
+fun Permintaan(
+    navController: NavHostController,
+    viewModel: PermintaanViewModel = viewModel()
+) {
     val tabTitles = listOf("Permintaan", "Pesanan")
-    val selectedTabIndex = remember { androidx.compose.runtime.mutableStateOf(0) }
+    val selectedTabIndex = remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -62,16 +59,18 @@ fun Permintaan(navController: NavHostController) {
                 .fillMaxSize()
         ) {
             when (selectedTabIndex.value) {
-                0 -> PermintaanTabContent {
-                    navController.navigate("detail") // Navigate to Detail Pesanan page
-                }
+                0 -> PermintaanTabContent(
+                    navController = navController,
+                    viewModel = viewModel
+                )
                 1 -> PesananTabContent {
-                    navController.navigate("detail") // Navigate to Detail Pesanan page
+                    navController.navigate("detailPesanan/Pesanan")
                 }
             }
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenteredTopAppBar(
@@ -94,7 +93,8 @@ fun CenteredTopAppBar(
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.SansSerif // Apply sans-serif font
                         ),
-                        color = Color.Black
+                        color = Color.Black,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             },
@@ -140,97 +140,12 @@ fun CenteredTopAppBar(
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    NavigationBar {
-        val items = listOf("Beranda", "Pesanan", "Profil")
-        val icons = listOf(Icons.Default.Home, Icons.Default.List, Icons.Default.Person)
-        val selectedIndex = remember { mutableStateOf(1) }
+fun PermintaanTabContent(
+    navController: NavHostController,
+    viewModel: PermintaanViewModel
+) {
+    val permintaanStatus by viewModel.permintaanStatus
 
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(
-                selected = selectedIndex.value == index,
-                onClick = {
-                    selectedIndex.value = index
-                    navController.navigate(item)
-                },
-                icon = {
-                    Icon(imageVector = icons[index], contentDescription = item)
-                },
-                label = { Text(item) }
-            )
-        }
-    }
-}
-
-@Composable
-fun NavigationHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "Pesanan") {
-        composable("Beranda") { PlaceholderScreen("Beranda") }
-        composable("Pesanan") { PesananScreen() }
-        composable("Profil") { PlaceholderScreen("Profil") }
-    }
-}
-
-@Composable
-fun PesananScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Permintaan",
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Card(
-            elevation = CardDefaults.cardElevation(4.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "Client: Dhea Ayu",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = "Permintaan sedang di proses",
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                ClickableText(
-                    text = AnnotatedString("Lihat detail"),
-                    onClick = { /* Handle click action */ },
-                    modifier = Modifier.align(Alignment.End),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun PlaceholderScreen(name: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Page: $name")
-    }
-}
-
-@Composable
-fun PermintaanTabContent(onDetailClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -245,41 +160,50 @@ fun PermintaanTabContent(onDetailClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
-                .clickable { onDetailClick() } // Navigate on click
+                .clickable {
+                    navController.navigate("detailPermintaan")
+                }
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Refresh,
-                    contentDescription = "Refresh Icon",
-                    tint = Color(0xFF5B6DFF),
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = "Refresh Icon",
+                        tint = Color(0xFF060EBB), // Updated color
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(end = 16.dp)
+                    )
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Client: Dhea Ayu",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = "Permintaan sedang di proses",
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        color = Color.Gray
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Client: Dhea Ayu",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = permintaanStatus, // Dynamic status from ViewModel
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            color = Color.Gray
+                        )
+                    }
                 }
 
+                Spacer(modifier = Modifier.height(8.dp)) // Add spacing before button
+
                 TextButton(
-                    onClick = { onDetailClick() }, // Navigate on click
+                    onClick = {
+                        navController.navigate("detailPermintaan")
+                    },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -287,12 +211,12 @@ fun PermintaanTabContent(onDetailClick: () -> Unit) {
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = FontFamily.SansSerif,
-                        color = Color(0xFF5B6DFF)
+                        color = Color.Black // Updated to black
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
                         contentDescription = "Detail Arrow",
-                        tint = Color(0xFF5B6DFF),
+                        tint = Color.Black, // Updated to black
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -303,7 +227,6 @@ fun PermintaanTabContent(onDetailClick: () -> Unit) {
 
 @Composable
 fun PesananTabContent(onDetailClick: () -> Unit) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -320,36 +243,41 @@ fun PesananTabContent(onDetailClick: () -> Unit) {
                 .padding(vertical = 8.dp)
                 .clickable { onDetailClick() } // Navigate on click
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Refresh,
-                    contentDescription = "Refresh Icon",
-                    tint = Color(0xFF5B6DFF),
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = "Refresh Icon",
+                        tint = Color(0xFF060EBB), // Updated color
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(end = 16.dp)
+                    )
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Client: Dhea Ayu",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = "Perbarui laporan pengiklanan",
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily.SansSerif,
-                        color = Color.Gray
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Client: Dhea Ayu",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "Perbarui laporan pengiklanan",
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            color = Color.Gray
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp)) // Add spacing before the button
 
                 TextButton(
                     onClick = { onDetailClick() }, // Navigate on click
@@ -360,12 +288,12 @@ fun PesananTabContent(onDetailClick: () -> Unit) {
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = FontFamily.SansSerif,
-                        color = Color(0xFF5B6DFF)
+                        color = Color.Black // Updated to black
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
                         contentDescription = "Detail Arrow",
-                        tint = Color(0xFF5B6DFF),
+                        tint = Color.Black, // Updated to black
                         modifier = Modifier.size(16.dp)
                     )
                 }

@@ -20,16 +20,17 @@ import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailPesanan(navController: NavHostController, selectedTab: String) {
+fun DetailPermintaan(
+    navController: NavHostController,
+    viewModel: PermintaanViewModel
+) {
     Scaffold(
         topBar = {
             SmallTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = {
-                        // Navigate back to the corresponding tab
-                        navController.navigate("main") {
-                            popUpTo("main") { inclusive = true }
-                        }
+                        // Use popBackStack() to return to the previous screen/state
+                        navController.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -44,7 +45,7 @@ fun DetailPesanan(navController: NavHostController, selectedTab: String) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Detail Pesanan",
+                            text = "Detail Permintaan",
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.SansSerif,
                             fontSize = 18.sp,
@@ -130,49 +131,49 @@ fun DetailPesanan(navController: NavHostController, selectedTab: String) {
                 )
             }
 
-            // Engagement Media Sosial
+            // Jumlah yang Dibayarkan
             Text(
-                text = "Engagement media sosial",
+                text = "Jumlah yang dibayarkan",
                 fontSize = 14.sp,
                 fontFamily = FontFamily.SansSerif,
-                color = Color.Gray,
-                modifier = Modifier.padding(vertical = 8.dp)
+                color = Color.Gray
             )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(vertical = 8.dp)
                     .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 Column {
-                    listOf(
-                        "Follower IG" to "+50",
-                        "Viewers postingan IG" to "+1000",
-                        "Share postingan IG" to "+40",
-                        "Save postingan IG" to "+25",
-                        "Follower Tiktok" to "+70",
-                        "Viewers postingan Tiktok" to "+500",
-                        "Share postingan Tiktok" to "+30",
-                        "Save postingan Tiktok" to "+5"
-                    ).forEach { (label, value) ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = label,
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = value,
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                color = Color.Black
-                            )
-                        }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Biaya influencer", fontSize = 14.sp, color = Color.Black)
+                        Text("Rp.18.000.000,00", fontSize = 14.sp, color = Color.Black)
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Administrasi 5%", fontSize = 14.sp, color = Color.Black)
+                        Text("Rp.900.000,00", fontSize = 14.sp, color = Color.Black)
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Cashback 5%", fontSize = 14.sp, color = Color.Black)
+                        Text("- Rp.900.000,00", fontSize = 14.sp, color = Color.Black)
+                    }
+                    Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Total", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                        Text("Rp.18.000.000,00", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
                     }
                 }
             }
@@ -194,7 +195,6 @@ fun DetailPesanan(navController: NavHostController, selectedTab: String) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Add an icon if required (for BCA logo)
                     Box(
                         modifier = Modifier
                             .size(24.dp)
@@ -208,6 +208,34 @@ fun DetailPesanan(navController: NavHostController, selectedTab: String) {
                         color = Color.Black
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Accept Button
+            Button(
+                onClick = {
+                    viewModel.updatePermintaanStatus("Permintaan diterima")
+                    navController.popBackStack()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B6DFF)),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Terima", fontSize = 16.sp, color = Color.White)
+            }
+
+            // Reject Button
+            Button(
+                onClick = {
+                    viewModel.updatePermintaanStatus("Permintaan ditolak")
+                    navController.popBackStack()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7043)),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Tolak", fontSize = 16.sp, color = Color.White)
             }
         }
     }
