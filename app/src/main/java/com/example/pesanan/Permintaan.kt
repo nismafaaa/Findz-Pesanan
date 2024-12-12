@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
@@ -32,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun Permintaan(
@@ -51,6 +56,61 @@ fun Permintaan(
                 },
                 tabTitles = tabTitles
             )
+        },
+        bottomBar = {
+            BottomNavigation(
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = Color.White,
+                elevation = 8.dp,
+                contentColor = Color(0xFFA3A7AB) // Set the default icon color
+            ) {
+                BottomNavigationItem(
+                    selected = false,
+                    onClick = { /* Navigate to Beranda */ },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Home,
+                            contentDescription = "Beranda"
+                        )
+                    },
+                    label = {
+                        Text("Beranda")
+                    },
+                    selectedContentColor = Color(0xFF625AFE),
+                    unselectedContentColor = Color(0xFFA3A7AB)
+                )
+                BottomNavigationItem(
+                    selected = true,
+                    onClick = { /* Navigate to Pesanan */ },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.List,
+                            contentDescription = "Pesanan",
+                            tint = Color(0xFF625AFE)
+                        )
+                    },
+                    label = {
+                        Text("Pesanan")
+                    },
+                    selectedContentColor = Color(0xFF625AFE),
+                    unselectedContentColor = Color(0xFFA3A7AB)
+                )
+                BottomNavigationItem(
+                    selected = false,
+                    onClick = { /* Navigate to Profil */ },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = "Profil"
+                        )
+                    },
+                    label = {
+                        Text("Profil")
+                    },
+                    selectedContentColor = Color(0xFF625AFE), // Set the selected icon color
+                    unselectedContentColor = Color(0xFFA3A7AB) // Set the unselected icon color
+                )
+            }
         }
     ) { paddingValues ->
         Box(
@@ -67,6 +127,61 @@ fun Permintaan(
                     navController.navigate("detailPesanan/Pesanan")
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun BottomNavigation(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    elevation: Dp = 0.dp,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    content: @Composable RowScope.() -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        color = backgroundColor,
+        shadowElevation = elevation,
+        contentColor = contentColor
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            content = content
+        )
+    }
+}
+
+@Composable
+fun BottomNavigationItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
+    label: @Composable () -> Unit,
+    selectedContentColor: Color,
+    unselectedContentColor: Color
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth(1f / 3f)
+            .clickable { onClick() },
+        color = if (selected) selectedContentColor.copy(alpha = 0.12f) else Color.Transparent
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier.size(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                icon()
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            label()
         }
     }
 }
